@@ -1,29 +1,37 @@
-import React, { useEffect } from 'react'
-import { useChatStore } from '../store/useChatStore'
-import MessageInput from './MessageInput'
-import ChatHeader from './ChatHeader'
-import MessageSkeleton from './skeletons/MessageSkeleton copy'
-import { useAuthStore } from '../store/useAuthStore'
-import { useRef } from 'react'
-import { formatMessageTime } from '../lib/utils.js'
-const ChatContainer = () => {
+import { useChatStore } from "../store/useChatStore";
+import { useEffect, useRef } from "react";
 
-    const { messages, getMessages, isMessagesLoading, selectedUser } = useChatStore()
-    const { authUser } = useAuthStore()
+import ChatHeader from "./ChatHeader";
+import MessageInput from "./MessageInput";
+import MessageSkeleton from "./skeletons/MessageSkeleton";
+import { useAuthStore } from "../store/useAuthStore";
+import { formatMessageTime } from "../lib/utils";
+
+const ChatContainer = () => {
+    const {
+        messages,
+        getMessages,
+        isMessagesLoading,
+        selectedUser,
+        subscribeToMessages,
+        unsubscribeFromMessages,
+    } = useChatStore();
+    const { authUser } = useAuthStore();
     const messageEndRef = useRef(null);
 
-
     useEffect(() => {
-        getMessages(selectedUser._id)
-    }, [selectedUser._id, getMessages])
+        getMessages(selectedUser._id);
 
+        subscribeToMessages();
+
+        return () => unsubscribeFromMessages();
+    }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
     useEffect(() => {
         if (messageEndRef.current && messages) {
             messageEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
-
 
     if (isMessagesLoading) {
         return (
@@ -35,9 +43,8 @@ const ChatContainer = () => {
         );
     }
 
-
     return (
-        <div className='flex-1 flex flex-col overflow-auto'>
+        <div className="flex-1 flex flex-col overflow-auto">
             <ChatHeader />
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -78,10 +85,8 @@ const ChatContainer = () => {
                 ))}
             </div>
 
-
             <MessageInput />
         </div>
-    )
-}
-
-export default ChatContainer
+    );
+};
+export default ChatContainer;
