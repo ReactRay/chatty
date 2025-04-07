@@ -3,14 +3,27 @@ import { useChatStore } from '../store/useChatStore'
 import MessageInput from './MessageInput'
 import ChatHeader from './ChatHeader'
 import MessageSkeleton from './skeletons/MessageSkeleton copy'
+import { useAuthStore } from '../store/useAuthStore'
+import { useRef } from 'react'
+import { formatMessageTime } from '../lib/utils.js'
 const ChatContainer = () => {
 
     const { messages, getMessages, isMessagesLoading, selectedUser } = useChatStore()
+    const { authUser } = useAuthStore()
+    const messageEndRef = useRef(null);
 
 
     useEffect(() => {
         getMessages(selectedUser._id)
     }, [selectedUser._id, getMessages])
+
+
+    useEffect(() => {
+        if (messageEndRef.current && messages) {
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
+
 
     if (isMessagesLoading) {
         return (
